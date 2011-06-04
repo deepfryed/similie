@@ -1,0 +1,30 @@
+= Similie
+
+Similie is a simple DCT based image hashing interface that,
+
+* computes a fingerprint based on low frequencies of an image.
+* computes hamming distance between 2 fingerprints.
+
+== Example
+    
+    require 'similie'
+
+    img1 = Similie.new("test/lena1.jpg") 
+    img2 = Similie.new("test/lena2.png") # lena1.jpg cropped and scaled
+    img3 = Similie.new("test/lena5.png") # a different image
+
+    img1.hash #=> unsigned 64bit int
+
+    img1.distance(img2) #=> 1
+    img1.distance(img5) #=> 5
+
+    Similie.distance("test/lena1.jpg", "test/lena5.jpg") #=> 5
+
+== Dependencies
+
+* ruby 1.9.1+
+* opencv 2.1+  (libcv-dev and libhighgui-dev on debian systems)
+
+= License
+
+{CC BY-SA 3.0}[http://creativecommons.org/licenses/by-sa/3.0/]
