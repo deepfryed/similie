@@ -52,20 +52,22 @@ int popcount(uint64_t x) {
     return (x * h01)>>56;           //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ...
 }
 
+#define DCT_SIZE 32
+
 uint64_t image_phash(IplImage *img) {
     uint64_t phash = 0;
     int x, y;
     double avg;
 
-    IplImage *small = cvCreateImage(cvSize(32, 32), 8, img->nChannels);
-    IplImage *mono  = cvCreateImage(cvSize(32, 32), 8, 1);
+    IplImage *small = cvCreateImage(cvSize(64, 64), 8, img->nChannels);
+    IplImage *mono  = cvCreateImage(cvSize(64, 64), 8, 1);
 
     cvResize(img, small, CV_INTER_CUBIC);
     cvCvtColor(small, mono, CV_RGB2GRAY);
 
-    CvMat *dct = cvCreateMat(8, 8, CV_32FC1);
-    for (x = 0; x < 8; x++) {
-        for (y = 0; y < 8; y++) {
+    CvMat *dct = cvCreateMat(DCT_SIZE, DCT_SIZE, CV_32FC1);
+    for (x = 0; x < DCT_SIZE; x++) {
+        for (y = 0; y < DCT_SIZE; y++) {
             cvSet2D(dct, x, y, cvScalarAll(cvGetMonoPixel(mono, x, y)));
         }
     }
