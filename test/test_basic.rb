@@ -14,4 +14,10 @@ describe 'Similie image load' do
     assert img
     assert_equal 216455360913932544, img.hash
   end
+
+  it 'should hash image using class method' do
+    hash = Similie.phash(File.join($testdir, 'lena1.png'))
+    assert hash
+    assert_equal 216455360913932544, hash
+  end
 end

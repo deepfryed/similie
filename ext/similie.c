@@ -154,6 +154,18 @@ VALUE rb_image_distance_func(VALUE self, VALUE file1, VALUE file2) {
     return INT2NUM(dist);
 }
 
+VALUE rb_image_phash_func(VALUE self, VALUE file) {
+    IplImage *img;
+    img = cvLoadImage(CSTRING(file), -1);
+    if (!img)
+        rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file));
+
+    uint64_t phash = image_phash(img);
+    cvReleaseImage(&img);
+
+    return SIZET2NUM(phash);
+}
+
 void Init_similie() {
     VALUE cSimilie = rb_define_class("Similie", rb_cObject);
     rb_define_alloc_func(cSimilie, rb_image_alloc);
@@ -162,4 +174,5 @@ void Init_similie() {
     rb_define_method(cSimilie, "distance",   RUBY_METHOD_FUNC(rb_image_distance),   1);
 
     rb_define_singleton_method(cSimilie, "distance", RUBY_METHOD_FUNC(rb_image_distance_func), 2);
+    rb_define_singleton_method(cSimilie, "phash",    RUBY_METHOD_FUNC(rb_image_phash_func),    1);
 }
