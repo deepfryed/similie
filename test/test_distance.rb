@@ -7,6 +7,7 @@ describe 'Similie image distance' do
     assert_equal 1, images[0].distance(images[1])
     assert_equal 2, images[1].distance(images[2])
     assert_equal 0, images[2].distance(images[3])
+    assert_equal 1, images[0].distance(images[3])
     assert_equal 6, images[3].distance(images[4])
   end
 
