@@ -59,8 +59,8 @@ uint64_t image_phash(IplImage *img) {
     int x, y;
     double avg;
 
-    IplImage *small = cvCreateImage(cvSize(64, 64), 8, img->nChannels);
-    IplImage *mono  = cvCreateImage(cvSize(64, 64), 8, 1);
+    IplImage *small = cvCreateImage(cvSize(64, 64), img->depth, img->nChannels);
+    IplImage *mono  = cvCreateImage(cvSize(64, 64), img->depth, 1);
 
     cvResize(img, small, CV_INTER_CUBIC);
     cvCvtColor(small, mono, CV_RGB2GRAY);
