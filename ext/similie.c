@@ -78,12 +78,14 @@ uint64_t image_phash(IplImage *img) {
     avg = (double)cvAvg(dct, 0).val[0] * 64.0 / 63.0;
 
     uint64_t mask = 1;
-    for (x = 0; x < 8; x++) {
-        for (y = 0; y < 8; y++) {
+    for (x = 7; x >= 0; x--) {
+        for (y = 7; y >= 0; y--) {
             if (cvGet2D(dct, x, y).val[0] > avg) phash |= mask;
             mask = mask << 1;
         }
     }
+
+    phash = phash & 0xEFFFFFFFFFFFFFFF;
 
     cvReleaseMat(&dct);
     cvReleaseImage(&mono);
