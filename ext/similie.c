@@ -88,7 +88,7 @@ uint64_t image_phash(IplImage *img) {
         }
     }
 
-    phash = phash & 0xEFFFFFFFFFFFFFFF;
+    phash = phash & 0x7FFFFFFFFFFFFFFF;
 
     cvReleaseMat(&dct);
     cvReleaseImage(&mono);
