@@ -73,6 +73,8 @@ uint64_t image_phash(IplImage *img) {
         }
     }
 
+    max++;
+
     CvMat *dct = cvCreateMat(DCT_SIZE, DCT_SIZE, CV_32FC1);
     for (x = 0; x < DCT_SIZE; x++) {
         for (y = 0; y < DCT_SIZE; y++) {
