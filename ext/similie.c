@@ -55,30 +55,41 @@ int popcount(uint64_t x) {
 #define DCT_SIZE 32
 
 uint64_t image_phash(IplImage *img) {
-    int x, y;
-    double avg;
+    int x, y, max, pixel;
+    double avg = 0;
     uint64_t phash = 0;
 
-    IplImage *small = cvCreateImage(cvSize(64, 64), img->depth, img->nChannels);
-    IplImage *mono  = cvCreateImage(cvSize(64, 64), img->depth, 1);
+    IplImage *small = cvCreateImage(cvSize(DCT_SIZE, DCT_SIZE), img->depth, img->nChannels);
+    IplImage *mono  = cvCreateImage(cvSize(DCT_SIZE, DCT_SIZE), img->depth, 1);
 
     cvResize(img, small, CV_INTER_CUBIC);
-    if (img->nChannels == 1)
-        cvCopy(small, mono, 0);
-    else
-        cvCvtColor(small, mono, CV_RGB2GRAY);
+    img->nChannels == 1 ? cvCopy(small, mono, 0) : cvCvtColor(small, mono, CV_RGB2GRAY);
+
+    max = 0;
+    for (x = 0; x < DCT_SIZE; x++) {
+        for (y = 0; y < DCT_SIZE; y++) {
+            pixel = cvGetMonoPixel(mono, x, y);
+            max   = max > pixel ? max : pixel;
+        }
+    }
 
     CvMat *dct = cvCreateMat(DCT_SIZE, DCT_SIZE, CV_32FC1);
     for (x = 0; x < DCT_SIZE; x++) {
         for (y = 0; y < DCT_SIZE; y++) {
-            cvSet2D(dct, x, y, cvScalarAll(cvGetMonoPixel(mono, x, y)));
+            cvSet2D(dct, x, y, cvScalarAll((double)cvGetMonoPixel(mono, x, y) * 255.0 / (double)max));
         }
     }
 
     cvDCT(dct, dct, CV_DXT_ROWS);
     cvSet2D(dct, 0, 0, cvScalarAll(0));
 
-    avg = (double)cvAvg(dct, 0).val[0] * 64.0 / 63.0;
+    for (x = 0; x < 8; x++) {
+        for (y = 0; y < 8; y++) {
+            avg += cvGet2D(dct, x, y).val[0];
+        }
+    }
+
+    avg /= 63.0;
 
     uint64_t mask = 1;
     for (x = 7; x >= 0; x--) {
