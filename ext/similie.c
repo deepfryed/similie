@@ -21,8 +21,8 @@
 #include <opencv/cxcore.h>
 #include <opencv/highgui.h>
 
-#define TO_S(v)                    rb_funcall(v, rb_intern("to_s"), 0)
-#define CSTRING(v)                 RSTRING_PTR(TO_S(v))
+#define TO_S(v)    rb_funcall(v, rb_intern("to_s"), 0)
+#define CSTRING(v) RSTRING_PTR(TO_S(v))
 
 #undef SIZET2NUM
 #ifdef HAVE_LONG_LONG
@@ -30,6 +30,9 @@
 #else
   #define SIZET2NUM(x) ULONG2NUM(x)
 #endif
+
+#define DCT_SIZE 32
+
 
 // http://en.wikipedia.org/wiki/Hamming_weight
 
@@ -48,8 +51,6 @@ int popcount(uint64_t x) {
     x = (x + (x >> 4)) & m4;        //put count of each 8 bits into those 8 bits
     return (x * h01)>>56;           //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ...
 }
-
-#define DCT_SIZE 32
 
 uint64_t image_fingerprint(IplImage *img) {
     int x, y;
@@ -76,7 +77,8 @@ uint64_t image_fingerprint(IplImage *img) {
 
     for (x = 7; x >= 0; x--) {
         for (y = 7; y >= 0; y--) {
-            if (cvGet2D(dct, x, y).val[0] > avg) phash |= phash_mask;
+            if (cvGet2D(dct, x, y).val[0] > avg)
+                phash |= phash_mask;
             phash_mask = phash_mask << 1;
         }
     }
@@ -125,7 +127,6 @@ VALUE rb_image_initialize(VALUE self, VALUE file) {
     DATA_PTR(self) = img;
     return self;
 }
-
 
 VALUE rb_image_distance(VALUE self, VALUE other) {
     VALUE hash1 = rb_image_fingerprint(self);
