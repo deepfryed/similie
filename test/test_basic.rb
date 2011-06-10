@@ -12,11 +12,11 @@ describe 'Similie image load' do
   it 'should hash image' do
     img = Similie.new(File.join($testdir, 'lena1.png'))
     assert img
-    assert_equal 36170087496991428, img.hash
+    assert_equal 36170087496991428, img.fingerprint
   end
 
   it 'should hash image using class method' do
-    hash = Similie.phash(File.join($testdir, 'lena1.png'))
+    hash = Similie.fingerprint(File.join($testdir, 'lena1.png'))
     assert hash
     assert_equal 36170087496991428, hash
   end
