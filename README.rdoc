@@ -6,10 +6,10 @@ Similie is a simple DCT based image hashing interface that,
 * computes hamming distance between 2 fingerprints.
 
 == Example
-    
+
     require 'similie'
 
-    img1 = Similie.new("test/lena1.png") 
+    img1 = Similie.new("test/lena1.png")
     img2 = Similie.new("test/lena2.png") # lena1.png cropped and scaled
     img3 = Similie.new("test/lena5.png") # a different image
 
