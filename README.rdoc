@@ -9,21 +9,27 @@ Similie is a simple DCT based image hashing interface that,
     
     require 'similie'
 
-    img1 = Similie.new("test/lena1.jpg") 
-    img2 = Similie.new("test/lena2.png") # lena1.jpg cropped and scaled
+    img1 = Similie.new("test/lena1.png") 
+    img2 = Similie.new("test/lena2.png") # lena1.png cropped and scaled
     img3 = Similie.new("test/lena5.png") # a different image
 
-    img1.hash #=> unsigned 64bit int
+    img1.fingerprint #=> 64bit int
 
     img1.distance(img2) #=> 1
     img1.distance(img5) #=> 5
 
-    Similie.distance("test/lena1.jpg", "test/lena5.jpg") #=> 5
+    # class methods, if you want to deallocate buffers immediately.
+    Similie.distance("test/lena1.png", "test/lena5.png") #=> 5
+    Similie.fingerprint("test/lena1.png")
 
 == Dependencies
 
 * ruby 1.9.1+
 * opencv 2.1+  (libcv-dev and libhighgui-dev on debian systems)
+
+= See Also
+
+http://www.phash.org/
 
 = License
 
