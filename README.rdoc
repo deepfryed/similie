@@ -29,7 +29,7 @@ Similie is a simple DCT based image hashing interface that,
 
 = See Also
 
-http://www.phash.org/
+{http://www.phash.org/}[http://www.phash.org/]
 
 = License
 
