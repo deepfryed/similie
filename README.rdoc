@@ -15,11 +15,11 @@ Similie is a simple DCT based image hashing interface that,
 
     img1.fingerprint #=> 64bit int
 
-    img1.distance(img2) #=> 1
-    img1.distance(img5) #=> 5
+    img1.distance(img2) #=> 2
+    img1.distance(img5) #=> 12
 
-    # class methods, if you want to deallocate buffers immediately.
-    Similie.distance("test/lena1.png", "test/lena5.png") #=> 5
+    # class methods, if you want to deallocate image buffers immediately.
+    Similie.distance("test/lena1.png", "test/lena5.png") #=> 12
     Similie.fingerprint("test/lena1.png")
 
 == Dependencies
@@ -29,7 +29,7 @@ Similie is a simple DCT based image hashing interface that,
 
 = See Also
 
-{http://www.phash.org/}[http://www.phash.org/]
+{pHash - The open source perceptual hash library}[http://www.phash.org/]
 
 = License
 
