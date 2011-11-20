@@ -17,10 +17,15 @@ end
 
 $CFLAGS  = inc_paths('opencv', %w(/usr/include/opencv)) + ' -Wall'
 $LDFLAGS = lib_names('opencv', %w(highgui cxcore))
+cxcore   = $LDFLAGS.scan(%r{-l(\w*core)}).flatten.first
+highgui  = $LDFLAGS.scan(%r{-l(\w*highgui)}).flatten.first
 
-headers = [ 'stdio.h', 'stdlib.h', 'string.h', 'opencv/cxcore.h', 'opencv/highgui.h' ]
-lib_1   = [ 'cxcore',  'cvInitFont',    headers ]
-lib_2   = [ 'highgui', 'cvEncodeImage', headers ]
+raise "unable to find opencv cxcore"  unless cxcore
+raise "unable to find opencv highgui" unless highgui
+
+headers = %w(stdio.h stdlib.h string.h opencv/cxcore.h opencv/highgui.h)
+lib_1   = [cxcore,  'cvInitFont',    headers]
+lib_2   = [highgui, 'cvEncodeImage', headers]
 
 if have_header('opencv/cxcore.h') && have_library(*lib_1) && have_library(*lib_2)
   create_makefile 'similie'
