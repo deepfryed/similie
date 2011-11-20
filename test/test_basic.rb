@@ -20,4 +20,9 @@ describe 'Similie image load' do
     assert hash
     assert_equal 36170087496991428, hash
   end
+
+  it 'should expose popcount' do
+    assert_equal 3, Similie.popcount(0x03 ^ 0x08)
+    assert_equal 4, Similie.popcount(0x07 ^ 0x08)
+  end
 end

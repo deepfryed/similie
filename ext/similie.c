@@ -33,7 +33,9 @@
 
 #define DCT_SIZE 32
 
-
+#if __GNUC__ >= 4 && __GNUC_MINOR__ >= 4
+#define popcount __builtin_popcountll
+#else
 // http://en.wikipedia.org/wiki/Hamming_weight
 
 const uint64_t m1  = 0x5555555555555555; //binary: 0101...
@@ -51,6 +53,7 @@ int popcount(uint64_t x) {
     x = (x + (x >> 4)) & m4;        //put count of each 8 bits into those 8 bits
     return (x * h01)>>56;           //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ...
 }
+#endif
 
 uint64_t image_fingerprint(IplImage *img) {
     int x, y;
@@ -82,8 +85,6 @@ uint64_t image_fingerprint(IplImage *img) {
             phash_mask = phash_mask << 1;
         }
     }
-
-    phash = phash & 0x7FFFFFFFFFFFFFFF;
 
     cvReleaseMat(&dct);
     cvReleaseImage(&mono);
@@ -155,6 +156,13 @@ VALUE rb_image_distance_func(VALUE self, VALUE file1, VALUE file2) {
     return INT2NUM(dist);
 }
 
+VALUE rb_popcount_func(VALUE self, VALUE value) {
+    if (TYPE(value) != T_BIGNUM && TYPE(value) != T_FIXNUM)
+        rb_raise(rb_eArgError, "value needs to be a number");
+    return INT2NUM(popcount(NUM2INT(value)));
+}
+
+
 VALUE rb_image_fingerprint_func(VALUE self, VALUE file) {
     IplImage *img;
     img = cvLoadImage(CSTRING(file), -1);
@@ -174,6 +182,7 @@ void Init_similie() {
     rb_define_method(cSimilie, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint), 0);
     rb_define_method(cSimilie, "distance",    RUBY_METHOD_FUNC(rb_image_distance),    1);
 
-    rb_define_singleton_method(cSimilie, "distance",     RUBY_METHOD_FUNC(rb_image_distance_func),    2);
-    rb_define_singleton_method(cSimilie, "fingerprint",  RUBY_METHOD_FUNC(rb_image_fingerprint_func), 1);
+    rb_define_singleton_method(cSimilie, "distance",    RUBY_METHOD_FUNC(rb_image_distance_func),    2);
+    rb_define_singleton_method(cSimilie, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func), 1);
+    rb_define_singleton_method(cSimilie, "popcount",    RUBY_METHOD_FUNC(rb_popcount_func),          1);
 }

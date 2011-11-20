@@ -22,6 +22,9 @@ Similie is a simple DCT based image hashing interface that,
     Similie.distance("test/lena1.png", "test/lena5.png") #=> 12
     Similie.fingerprint("test/lena1.png")
 
+    # utility method that exposes hamming distance http://en.wikipedia.org/wiki/Hamming_weight
+    Similie.popcount(0x03 ^ 0x08) #=> 3
+
 == Dependencies
 
 * ruby 1.9.1+

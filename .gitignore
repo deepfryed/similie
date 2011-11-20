@@ -8,3 +8,4 @@ ext/*
 !ext/*.h
 ext/*.so
 *.gem
+test.rb

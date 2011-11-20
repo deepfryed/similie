@@ -1,12 +1,25 @@
 require 'mkmf'
 
-$CFLAGS  = "-I/usr/include/opencv -Wall"
-$LDFLAGS = "-lhighgui -lcxcore"
+def inc_paths lib, defaults
+  path = %x{pkg-config #{lib} --cflags 2>/dev/null}.strip
+  path.size > 0 ? path : defaults.map {|name| "-I#{name}"}.join(' ')
+end
 
-dir_config("libcv", ["/usr/local", "/opt/local", "/usr"])
+def lib_paths lib, defaults
+  path = %x{pkg-config #{lib}  --libs-only-L 2>/dev/null}.strip
+  path.size > 0 ? path : defaults.map {|name| "-L#{name}"}.join(' ')
+end
+
+def lib_names lib, defaults
+  path = %x{pkg-config #{lib}  --libs-only-l 2>/dev/null}.strip
+  path.size > 0 ? path : defaults.map {|name| "-l#{name}"}.join(' ')
+end
+
+$CFLAGS  = inc_paths('opencv', %w(/usr/include/opencv)) + ' -Wall'
+$LDFLAGS = lib_names('opencv', %w(highgui cxcore))
 
 headers = [ 'stdio.h', 'stdlib.h', 'string.h', 'opencv/cxcore.h', 'opencv/highgui.h' ]
-lib_1   = [ 'cxcore', 'cvInitFont', headers ]
+lib_1   = [ 'cxcore',  'cvInitFont',    headers ]
 lib_2   = [ 'highgui', 'cvEncodeImage', headers ]
 
 if have_header('opencv/cxcore.h') && have_library(*lib_1) && have_library(*lib_2)
