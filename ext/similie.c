@@ -25,15 +25,21 @@
 #define CSTRING(v) RSTRING_PTR(TO_S(v))
 
 #undef SIZET2NUM
+#undef NUM2SIZET
+
 #ifdef HAVE_LONG_LONG
   #define SIZET2NUM(x) ULL2NUM(x)
+  #define NUM2SIZET(x) NUM2ULL(x)
 #else
   #define SIZET2NUM(x) ULONG2NUM(x)
+  #define NUM2SIZET(x) NUM2ULONG(x)
 #endif
+
+
 
 #define DCT_SIZE 32
 
-#if __GNUC__ >= 4 && __GNUC_MINOR__ >= 4
+#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
 #define popcount __builtin_popcountll
 #else
 // http://en.wikipedia.org/wiki/Hamming_weight
@@ -132,7 +138,7 @@ VALUE rb_image_initialize(VALUE self, VALUE file) {
 VALUE rb_image_distance(VALUE self, VALUE other) {
     VALUE hash1 = rb_image_fingerprint(self);
     VALUE hash2 = rb_image_fingerprint(other);
-    int dist    = popcount(NUM2ULONG(hash1) ^ NUM2ULONG(hash2));
+    int dist    = popcount(NUM2SIZET(hash1) ^ NUM2SIZET(hash2));
     return INT2NUM(dist);
 }
 

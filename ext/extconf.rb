@@ -12,7 +12,8 @@ end
 
 def lib_flags lib, defaults
   path = %x{pkg-config #{lib}  --libs-only-l 2>/dev/null}.strip
-  path.size > 0 ? path : defaults.map {|name| "-l#{name}"}.join(' ')
+  path.size > 0 ? path.split(/\s+/).select {|name| %r{core|highgui}.match(name)}.join(' ')
+                : defaults.map {|name| "-l#{name}"}.join(' ')
 end
 
 def lib_name re
