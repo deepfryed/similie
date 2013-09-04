@@ -7,8 +7,9 @@ Gem::Specification.new do |s|
   s.summary           = "compute image fingerprints and similarity"
   s.description       = "similie is an image fingerprinting & comparison utility"
   s.homepage          = "http://github.com/deepfryed/similie"
-  s.files             = Dir["ext/**/*.{c,cc,h}"] + %w(README.rdoc ext/extconf.rb) + Dir["test/*.rb"]
-  s.extra_rdoc_files  = %w(README.rdoc)
-  s.extensions        = %w(ext/extconf.rb)
-  s.require_paths     = %w(lib)
+  s.files             = `git ls-files`.split("\n")
+  s.test_files        = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.executables       = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  s.extensions        = `git ls-files -- ext/**/extconf.rb`.split("\n")
+  s.require_paths     = %w[lib]
 end
