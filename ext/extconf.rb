@@ -21,7 +21,7 @@ def lib_name re
 end
 
 $CFLAGS  = inc_paths 'opencv', %w(/usr/include/opencv)
-$LDFLAGS = lib_flags 'opencv', %w(highgui cxcore)
+$LDFLAGS = lib_flags 'opencv', %w(opencv_highgui opencv_core)
 
 cxcore   = lib_name(%r{-l(\w*core)})    or raise 'unable to find opencv cxcore'
 highgui  = lib_name(%r{-l(\w*highgui)}) or raise 'unable to find opencv highgui'
