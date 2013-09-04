@@ -35,8 +35,6 @@
   #define NUM2SIZET(x) NUM2ULONG(x)
 #endif
 
-
-
 #define DCT_SIZE 32
 
 #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
@@ -54,48 +52,48 @@ const uint64_t hff = 0xffffffffffffffff; //binary: all ones
 const uint64_t h01 = 0x0101010101010101; //the sum of 256 to the power of 0,1,2,3...
 
 int popcount(uint64_t x) {
-    x -= (x >> 1) & m1;             //put count of each 2 bits into those 2 bits
-    x = (x & m2) + ((x >> 2) & m2); //put count of each 4 bits into those 4 bits
-    x = (x + (x >> 4)) & m4;        //put count of each 8 bits into those 8 bits
-    return (x * h01)>>56;           //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ...
+  x -= (x >> 1) & m1;             //put count of each 2 bits into those 2 bits
+  x = (x & m2) + ((x >> 2) & m2); //put count of each 4 bits into those 4 bits
+  x = (x + (x >> 4)) & m4;        //put count of each 8 bits into those 8 bits
+  return (x * h01)>>56;           //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ...
 }
 #endif
 
 uint64_t image_fingerprint(IplImage *img) {
-    int x, y;
-    double avg = 0;
-    uint64_t phash = 0, phash_mask = 1;
+  int x, y;
+  double avg = 0;
+  uint64_t phash = 0, phash_mask = 1;
 
-    IplImage *mono  = cvCreateImage(cvSize(img->width, img->height), img->depth, 1);
-    IplImage *small = cvCreateImage(cvSize(DCT_SIZE, DCT_SIZE),      img->depth, 1);
+  IplImage *mono  = cvCreateImage(cvSize(img->width, img->height), img->depth, 1);
+  IplImage *small = cvCreateImage(cvSize(DCT_SIZE, DCT_SIZE),      img->depth, 1);
 
-    img->nChannels == 1 ? cvCopy(img, mono, 0) : cvCvtColor(img, mono, CV_RGB2GRAY);
-    cvResize(mono, small, CV_INTER_CUBIC);
+  img->nChannels == 1 ? cvCopy(img, mono, 0) : cvCvtColor(img, mono, CV_RGB2GRAY);
+  cvResize(mono, small, CV_INTER_CUBIC);
 
-    CvMat *dct = cvCreateMat(DCT_SIZE, DCT_SIZE, CV_64FC1);
+  CvMat *dct = cvCreateMat(DCT_SIZE, DCT_SIZE, CV_64FC1);
 
-    cvConvertScale(small, dct, 1, 0);
-    cvTranspose(dct, dct);
+  cvConvertScale(small, dct, 1, 0);
+  cvTranspose(dct, dct);
 
-    cvDCT(dct, dct, CV_DXT_ROWS);
-    cvSet2D(dct, 0, 0, cvScalarAll(0));
+  cvDCT(dct, dct, CV_DXT_ROWS);
+  cvSet2D(dct, 0, 0, cvScalarAll(0));
 
-    CvMat roi;
-    cvGetSubRect(dct, &roi, cvRect(0, 0, 8, 8));
-    avg = cvAvg(&roi, 0).val[0] * 64.0 / 63.0;
+  CvMat roi;
+  cvGetSubRect(dct, &roi, cvRect(0, 0, 8, 8));
+  avg = cvAvg(&roi, 0).val[0] * 64.0 / 63.0;
 
-    for (x = 7; x >= 0; x--) {
-        for (y = 7; y >= 0; y--) {
-            if (cvGet2D(dct, x, y).val[0] > avg)
-                phash |= phash_mask;
-            phash_mask = phash_mask << 1;
-        }
+  for (x = 7; x >= 0; x--) {
+    for (y = 7; y >= 0; y--) {
+      if (cvGet2D(dct, x, y).val[0] > avg)
+        phash |= phash_mask;
+      phash_mask = phash_mask << 1;
     }
+  }
 
-    cvReleaseMat(&dct);
-    cvReleaseImage(&mono);
-    cvReleaseImage(&small);
-    return phash;
+  cvReleaseMat(&dct);
+  cvReleaseImage(&mono);
+  cvReleaseImage(&small);
+  return phash;
 }
 
 static void rb_image_free(IplImage *handle) {
@@ -118,78 +116,77 @@ IplImage* rb_image_handle(VALUE self) {
 }
 
 VALUE rb_image_fingerprint(VALUE self) {
-    VALUE hash = rb_iv_get(self, "@fingerprint");
-    if (NIL_P(hash)) {
-        hash = SIZET2NUM(image_fingerprint(rb_image_handle(self)));
-        rb_iv_set(self, "@fingerprint", hash);
-    }
-    return hash;
+  VALUE hash = rb_iv_get(self, "@fingerprint");
+  if (NIL_P(hash)) {
+    hash = SIZET2NUM(image_fingerprint(rb_image_handle(self)));
+    rb_iv_set(self, "@fingerprint", hash);
+  }
+  return hash;
 }
 
 VALUE rb_image_initialize(VALUE self, VALUE file) {
-    IplImage *img = cvLoadImage(CSTRING(file), -1);
-    if (!img)
-        rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file));
+  IplImage *img = cvLoadImage(CSTRING(file), -1);
+  if (!img)
+    rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file));
 
-    DATA_PTR(self) = img;
-    return self;
+  DATA_PTR(self) = img;
+  return self;
 }
 
 VALUE rb_image_distance(VALUE self, VALUE other) {
-    VALUE hash1 = rb_image_fingerprint(self);
-    VALUE hash2 = rb_image_fingerprint(other);
-    int dist    = popcount(NUM2SIZET(hash1) ^ NUM2SIZET(hash2));
-    return INT2NUM(dist);
+  VALUE hash1 = rb_image_fingerprint(self);
+  VALUE hash2 = rb_image_fingerprint(other);
+  int dist    = popcount(NUM2SIZET(hash1) ^ NUM2SIZET(hash2));
+  return INT2NUM(dist);
 }
 
 VALUE rb_image_distance_func(VALUE self, VALUE file1, VALUE file2) {
-    IplImage *img1, *img2;
-    img1 = cvLoadImage(CSTRING(file1), -1);
-    if (!img1)
-        rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file1));
+  IplImage *img1, *img2;
+  img1 = cvLoadImage(CSTRING(file1), -1);
+  if (!img1)
+    rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file1));
 
-    img2 = cvLoadImage(CSTRING(file2), -1);
-    if (!img2) {
-        cvReleaseImage(&img1);
-        rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file2));
-    }
-
-    int dist = popcount(image_fingerprint(img1) ^ image_fingerprint(img2));
-
+  img2 = cvLoadImage(CSTRING(file2), -1);
+  if (!img2) {
     cvReleaseImage(&img1);
-    cvReleaseImage(&img2);
+    rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file2));
+  }
 
-    return INT2NUM(dist);
+  int dist = popcount(image_fingerprint(img1) ^ image_fingerprint(img2));
+
+  cvReleaseImage(&img1);
+  cvReleaseImage(&img2);
+
+  return INT2NUM(dist);
 }
 
 VALUE rb_popcount_func(VALUE self, VALUE value) {
-    if (TYPE(value) != T_BIGNUM && TYPE(value) != T_FIXNUM)
-        rb_raise(rb_eArgError, "value needs to be a number");
-    return INT2NUM(popcount(NUM2INT(value)));
+  if (TYPE(value) != T_BIGNUM && TYPE(value) != T_FIXNUM)
+    rb_raise(rb_eArgError, "value needs to be a number");
+  return INT2NUM(popcount(NUM2INT(value)));
 }
 
-
 VALUE rb_image_fingerprint_func(VALUE self, VALUE file) {
-    IplImage *img;
-    img = cvLoadImage(CSTRING(file), -1);
-    if (!img)
-        rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file));
+  IplImage *img;
+  img = cvLoadImage(CSTRING(file), -1);
+  if (!img)
+    rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file));
 
-    uint64_t phash = image_fingerprint(img);
-    cvReleaseImage(&img);
+  uint64_t phash = image_fingerprint(img);
+  cvReleaseImage(&img);
 
-    return SIZET2NUM(phash);
+  return SIZET2NUM(phash);
 }
 
 void Init_similie() {
-    VALUE cSimilie = rb_define_class("Similie", rb_cObject);
-    rb_define_alloc_func(cSimilie, rb_image_alloc);
-    rb_define_method(cSimilie, "initialize",  RUBY_METHOD_FUNC(rb_image_initialize),  1);
-    rb_define_method(cSimilie, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint), 0);
-    rb_define_method(cSimilie, "distance",    RUBY_METHOD_FUNC(rb_image_distance),    1);
-    rb_define_alias(cSimilie, "%", "distance");
+  VALUE cSimilie = rb_define_class("Similie", rb_cObject);
+  rb_define_alloc_func(cSimilie, rb_image_alloc);
+  rb_define_method(cSimilie, "initialize",  RUBY_METHOD_FUNC(rb_image_initialize),  1);
+  rb_define_method(cSimilie, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint), 0);
+  rb_define_method(cSimilie, "distance",    RUBY_METHOD_FUNC(rb_image_distance),    1);
+  rb_define_alias(cSimilie, "%", "distance");
 
-    rb_define_singleton_method(cSimilie, "distance",    RUBY_METHOD_FUNC(rb_image_distance_func),    2);
-    rb_define_singleton_method(cSimilie, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func), 1);
-    rb_define_singleton_method(cSimilie, "popcount",    RUBY_METHOD_FUNC(rb_popcount_func),          1);
+  rb_define_singleton_method(cSimilie, "distance",    RUBY_METHOD_FUNC(rb_image_distance_func),    2);
+  rb_define_singleton_method(cSimilie, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func), 1);
+  rb_define_singleton_method(cSimilie, "popcount",    RUBY_METHOD_FUNC(rb_popcount_func),          1);
 }
