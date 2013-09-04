@@ -187,6 +187,7 @@ void Init_similie() {
     rb_define_method(cSimilie, "initialize",  RUBY_METHOD_FUNC(rb_image_initialize),  1);
     rb_define_method(cSimilie, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint), 0);
     rb_define_method(cSimilie, "distance",    RUBY_METHOD_FUNC(rb_image_distance),    1);
+    rb_define_alias(cSimilie, "%", "distance");
 
     rb_define_singleton_method(cSimilie, "distance",    RUBY_METHOD_FUNC(rb_image_distance_func),    2);
     rb_define_singleton_method(cSimilie, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func), 1);
