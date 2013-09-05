@@ -108,37 +108,22 @@ VALUE rb_image_fingerprint_func(VALUE self, VALUE file) {
   return SIZET2NUM(phash);
 }
 
-VALUE rb_image_distance_func(VALUE self, VALUE file1, VALUE file2) {
-  IplImage *img1, *img2;
-  img1 = cvLoadImage(CSTRING(file1), -1);
-  if (!img1)
-    rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file1));
+VALUE rb_fingerprint_distance_func(VALUE self, VALUE fingerprint1, VALUE fingerprint2) {
+  if (TYPE(fingerprint1) != T_BIGNUM && TYPE(fingerprint1) != T_FIXNUM)
+    rb_raise(rb_eArgError, "fingerprint1 needs to be a number");
 
-  img2 = cvLoadImage(CSTRING(file2), -1);
-  if (!img2) {
-    cvReleaseImage(&img1);
-    rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file2));
-  }
+  if (TYPE(fingerprint2) != T_BIGNUM && TYPE(fingerprint2) != T_FIXNUM)
+    rb_raise(rb_eArgError, "fingerprint2 needs to be a number");
 
-  int dist = popcount(image_fingerprint(img1) ^ image_fingerprint(img2));
-
-  cvReleaseImage(&img1);
-  cvReleaseImage(&img2);
+  int dist = popcount(NUM2SIZET(fingerprint1) ^ NUM2SIZET(fingerprint2));
 
   return INT2NUM(dist);
 }
 
-VALUE rb_popcount_func(VALUE self, VALUE value) {
-  if (TYPE(value) != T_BIGNUM && TYPE(value) != T_FIXNUM)
-    rb_raise(rb_eArgError, "value needs to be a number");
-  return INT2NUM(popcount(NUM2INT(value)));
-}
-
 void Init_fingerprint() {
   VALUE cSimilie = rb_define_class("Similie", rb_cObject);
-  VALUE cFingerprint = rb_define_class("Fingerprint", cSimilie);
+  VALUE mFingerprint = rb_define_module_under(cSimilie, "Fingerprint");
 
-  rb_define_singleton_method(cFingerprint, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func), 1);
-  rb_define_singleton_method(cFingerprint, "distance",    RUBY_METHOD_FUNC(rb_image_distance_func),    2);
-  rb_define_singleton_method(cFingerprint, "popcount",    RUBY_METHOD_FUNC(rb_popcount_func),          1);
+  rb_define_singleton_method(mFingerprint, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func),    1);
+  rb_define_singleton_method(mFingerprint, "distance",    RUBY_METHOD_FUNC(rb_fingerprint_distance_func), 2);
 }

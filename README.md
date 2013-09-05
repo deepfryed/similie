@@ -10,21 +10,16 @@ Similie is a simple DCT based image hashing interface that,
 ```ruby
   require 'similie'
 
-  img1 = Similie.new("test/lena1.png")
-  img2 = Similie.new("test/lena2.png") # lena1.png cropped and scaled
-  img3 = Similie.new("test/lena5.png") # a different image
+  similie = Similie.new
 
-  img1.fingerprint #=> 64bit int
+  img_path1 = "test/lena1.png"
+  img_path2 = "test/lena2.png" # lena1.png cropped and scaled
+  img_path3 = "test/lena5.png" # a different image
 
-  img1.distance(img2) #=> 2
-  img1.distance(img3) #=> 12
+  similie.fingerprint(img_path1) #=> 36170087496991428
 
-  # class methods, if you want to deallocate image buffers immediately.
-  Similie.distance("test/lena1.png", "test/lena5.png") #=> 12
-  Similie.fingerprint("test/lena1.png")
-
-  # utility method that exposes hamming distance http://en.wikipedia.org/wiki/Hamming_weight
-  Similie.popcount(0x03 ^ 0x08) #=> 3
+  similie.distance(img_path1, img_path2) #=> 2
+  similie.distance(img_path1, img_path3) #=> 12
 ```
 
 ## Dependencies
