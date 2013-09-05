@@ -40,7 +40,7 @@ describe 'Similie image distance' do
 end
 
 describe 'Similie caching' do
-  it 'should work for similar images' do
+  it 'should use cache' do
     similie = Similie.new
 
     images = (1..5).map{ |n| DIR + 'lena%d.png' % n }
