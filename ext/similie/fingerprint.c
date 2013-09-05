@@ -65,16 +65,17 @@ uint64_t image_fingerprint(IplImage *img) {
   uint64_t phash = 0, phash_mask = 1;
 
   IplImage *mono  = cvCreateImage(cvSize(img->width, img->height), img->depth, 1);
-  IplImage *small = cvCreateImage(cvSize(DCT_SIZE, DCT_SIZE),      img->depth, 1);
-
   img->nChannels == 1 ? cvCopy(img, mono, 0) : cvCvtColor(img, mono, CV_RGB2GRAY);
+
+  IplImage *small = cvCreateImage(cvSize(DCT_SIZE, DCT_SIZE), img->depth, 1);
   cvResize(mono, small, CV_INTER_CUBIC);
+  cvReleaseImage(&mono);
 
   CvMat *dct = cvCreateMat(DCT_SIZE, DCT_SIZE, CV_64FC1);
-
   cvConvertScale(small, dct, 1, 0);
-  cvTranspose(dct, dct);
+  cvReleaseImage(&small);
 
+  cvTranspose(dct, dct);
   cvDCT(dct, dct, CV_DXT_ROWS);
   cvSet2D(dct, 0, 0, cvScalarAll(0));
 
@@ -91,8 +92,7 @@ uint64_t image_fingerprint(IplImage *img) {
   }
 
   cvReleaseMat(&dct);
-  cvReleaseImage(&mono);
-  cvReleaseImage(&small);
+
   return phash;
 }
 
