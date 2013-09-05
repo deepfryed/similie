@@ -23,6 +23,11 @@ describe 'Similie fingerprinting' do
     fingerprint = Similie.new.fingerprint(DIR + 'lena1.png')
     expect(fingerprint).to eq(36170087496991428)
   end
+
+  it 'should fingerprint image rotations' do
+    rotations = Similie.new.rotations(DIR + 'lena1.png')
+    expect(rotations[0]).to eq(36170087496991428)
+  end
 end
 
 describe 'Similie image distance' do
