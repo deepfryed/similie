@@ -15,11 +15,27 @@ class Similie
   end
 
   def fingerprint(path)
-    @cache[path] ||= Fingerprint.fingerprint(path)
+    case cached = @cache[path]
+    when Array
+      cached[0]
+    when Integer
+      cached
+    when nil
+      @cache[path] = Fingerprint.fingerprint(path)
+    else
+      raise "Cache for #{path} contains non fingerprint #{cached}"
+    end
   end
 
   def rotations(path)
-    Fingerprint.rotations(path)
+    case cached = @cache[path]
+    when Array
+      cached
+    when Integer, nil
+      @cache[path] = Fingerprint.rotations(path)
+    else
+      raise "Cache for #{path} contains non fingerprint #{cached}"
+    end
   end
 
   def distance(path_a, path_b)

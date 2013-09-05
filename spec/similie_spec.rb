@@ -72,3 +72,26 @@ describe 'Similie image reoriented distance' do
     end
   end
 end
+
+describe 'Similie caching with rotations' do
+  it 'should use cache' do
+    similie = Similie.new
+
+    images = (1..5).map{ |n| DIR + 'lena%d.png' % n }
+
+    Similie::Fingerprint.should_receive(:fingerprint).exactly(images.length).times.and_return(0)
+    Similie::Fingerprint.should_receive(:rotations).exactly(images.length).times.and_return(8.times.to_a)
+
+    images.permutation(2) do |a, b|
+      similie.distance(a, b)
+    end
+
+    images.permutation(2) do |a, b|
+      similie.distance_with_rotations(a, b)
+    end
+
+    images.permutation(2) do |a, b|
+      similie.distance(a, b)
+    end
+  end
+end
