@@ -38,3 +38,21 @@ describe 'Similie image distance' do
     expect(similie.distance(images[1], images[5])).to eq(12)
   end
 end
+
+describe 'Similie caching' do
+  it 'should work for similar images' do
+    similie = Similie.new
+
+    images = (1..5).map{ |n| DIR + 'lena%d.png' % n }
+
+    images.each do |image|
+      Similie::Fingerprint.should_receive(:fingerprint).once.with(image).and_return(image.__id__)
+    end
+
+    images.each do |a|
+      images.each do |b|
+        similie.distance(a, b)
+      end
+    end
+  end
+end
