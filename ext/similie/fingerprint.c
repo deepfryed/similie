@@ -59,11 +59,7 @@ int popcount(uint64_t x) {
 }
 #endif
 
-uint64_t image_fingerprint(IplImage *img) {
-  int x, y;
-  double avg = 0;
-  uint64_t phash = 0, phash_mask = 1;
-
+IplImage* small_mono_image(IplImage *img) {
   IplImage *mono  = cvCreateImage(cvSize(img->width, img->height), img->depth, 1);
   img->nChannels == 1 ? cvCopy(img, mono, 0) : cvCvtColor(img, mono, CV_RGB2GRAY);
 
@@ -71,9 +67,16 @@ uint64_t image_fingerprint(IplImage *img) {
   cvResize(mono, small, CV_INTER_CUBIC);
   cvReleaseImage(&mono);
 
+  return small;
+}
+
+uint64_t small_mono_image_fingerprint(IplImage *small) {
+  int x, y;
+  double avg = 0;
+  uint64_t phash = 0, phash_mask = 1;
+
   CvMat *dct = cvCreateMat(DCT_SIZE, DCT_SIZE, CV_64FC1);
   cvConvertScale(small, dct, 1, 0);
-  cvReleaseImage(&small);
 
   cvTranspose(dct, dct);
   cvDCT(dct, dct, CV_DXT_ROWS);
@@ -92,6 +95,16 @@ uint64_t image_fingerprint(IplImage *img) {
   }
 
   cvReleaseMat(&dct);
+
+  return phash;
+}
+
+uint64_t image_fingerprint(IplImage *img) {
+  uint64_t phash;
+
+  IplImage *small = small_mono_image(img);
+  phash = small_mono_image_fingerprint(small);
+  cvReleaseImage(&small);
 
   return phash;
 }
