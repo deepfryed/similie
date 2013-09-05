@@ -2,16 +2,17 @@ $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 $:.unshift File.join(File.dirname(__FILE__), '..', 'ext')
 require 'rspec'
 require 'similie'
-
-$testdir = File.absolute_path(File.dirname(__FILE__))
+require 'pathname'
 
 describe 'Similie fingerprinting' do
+  DIR = Pathname(__FILE__).dirname
+
   it 'should fingerprint image' do
-    expect(Similie.new.fingerprint(File.join($testdir, 'lena1.png'))).not_to be(nil)
+    expect(Similie.new.fingerprint(DIR + 'lena1.png')).not_to be(nil)
   end
 
   it 'should barf on invalid path' do
-    expect{ Similie.new.fingerprint(File.join($testdir, 'foo')) }.to raise_error(ArgumentError)
+    expect{ Similie.new.fingerprint(DIR + 'foo') }.to raise_error(ArgumentError)
   end
 
   it 'should barf on non image' do
@@ -19,7 +20,7 @@ describe 'Similie fingerprinting' do
   end
 
   it 'should fingerprint image' do
-    fingerprint = Similie.new.fingerprint(File.join($testdir, 'lena1.png'))
+    fingerprint = Similie.new.fingerprint(DIR + 'lena1.png')
     expect(fingerprint).to eq(36170087496991428)
   end
 end
@@ -27,7 +28,7 @@ end
 describe 'Similie image distance' do
   it 'should work for similar images' do
     similie = Similie.new
-    images = (1..5).map{ |n| File.join($testdir, 'lena%d.png' % n) }
+    images = (1..5).map{ |n| DIR + 'lena%d.png' % n }
     images.unshift nil
 
     expect(similie.distance(images[1], images[2])).to eq(2)
