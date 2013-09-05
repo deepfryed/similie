@@ -49,10 +49,8 @@ describe 'Similie caching' do
       Similie::Fingerprint.should_receive(:fingerprint).once.with(image).and_return(image.__id__)
     end
 
-    images.each do |a|
-      images.each do |b|
-        similie.distance(a, b)
-      end
+    images.permutation(2) do |a, b|
+      similie.distance(a, b)
     end
   end
 end
