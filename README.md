@@ -12,14 +12,22 @@ Similie is a simple DCT based image hashing interface that,
 
   similie = Similie.new
 
-  img_path1 = "test/lena1.png"
-  img_path2 = "test/lena2.png" # lena1.png cropped and scaled
-  img_path3 = "test/lena5.png" # a different image
+  lena1 = "spec/lena1.png"
+  lena2 = "spec/lena2.png" # lena1.png cropped and scaled
+  lena5 = "spec/lena5.png" # a different image
+  lena6 = "spec/lena6.png" # lena2.png rotated and scaled
 
-  similie.fingerprint(img_path1) #=> 36170087496991428
+  similie.fingerprint(lena1) #=> 36170087496991428
 
-  similie.distance(img_path1, img_path2) #=> 2
-  similie.distance(img_path1, img_path3) #=> 12
+  similie.distance(lena1, lena2) #=> 2
+  similie.distance(lena1, lena5) #=> 12
+
+  similie.distance(lena1, lena6) #=> 19
+  similie.distance(lena2, lena6) #=> 19
+  similie.distance(lena5, lena6) #=> 23
+  similie.distance_with_rotations(lena1, lena6) #=> 2
+  similie.distance_with_rotations(lena2, lena6) #=> 0
+  similie.distance_with_rotations(lena5, lena6) #=> 12
 ```
 
 ## Caching
