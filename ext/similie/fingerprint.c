@@ -96,48 +96,16 @@ uint64_t image_fingerprint(IplImage *img) {
   return phash;
 }
 
-static void rb_image_free(IplImage *handle) {
-  if (handle)
-    cvReleaseImage(&handle);
-}
-
-VALUE rb_image_alloc(VALUE klass) {
-  IplImage *handle = 0;
-  return Data_Wrap_Struct(klass, 0, rb_image_free, handle);
-}
-
-IplImage* rb_image_handle(VALUE self) {
-  IplImage *handle = 0;
-  Data_Get_Struct(self, IplImage, handle);
-  if (!handle)
-    rb_raise(rb_eRuntimeError, "Invalid object, did you forget to call super() ?");
-
-  return handle;
-}
-
-VALUE rb_image_fingerprint(VALUE self) {
-  VALUE hash = rb_iv_get(self, "@fingerprint");
-  if (NIL_P(hash)) {
-    hash = SIZET2NUM(image_fingerprint(rb_image_handle(self)));
-    rb_iv_set(self, "@fingerprint", hash);
-  }
-  return hash;
-}
-
-VALUE rb_image_initialize(VALUE self, VALUE file) {
-  IplImage *img = cvLoadImage(CSTRING(file), -1);
+VALUE rb_image_fingerprint_func(VALUE self, VALUE file) {
+  IplImage *img;
+  img = cvLoadImage(CSTRING(file), -1);
   if (!img)
     rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file));
 
-  DATA_PTR(self) = img;
-  return self;
-}
+  uint64_t phash = image_fingerprint(img);
+  cvReleaseImage(&img);
 
-VALUE rb_image_distance(VALUE self, VALUE other) {
-  VALUE hash1 = rb_image_fingerprint(self);
-  VALUE hash2 = rb_image_fingerprint(other);
-  int dist    = popcount(NUM2SIZET(hash1) ^ NUM2SIZET(hash2));
-  return INT2NUM(dist);
+  return SIZET2NUM(phash);
 }
 
 VALUE rb_image_distance_func(VALUE self, VALUE file1, VALUE file2) {
@@ -166,27 +134,11 @@ VALUE rb_popcount_func(VALUE self, VALUE value) {
   return INT2NUM(popcount(NUM2INT(value)));
 }
 
-VALUE rb_image_fingerprint_func(VALUE self, VALUE file) {
-  IplImage *img;
-  img = cvLoadImage(CSTRING(file), -1);
-  if (!img)
-    rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file));
-
-  uint64_t phash = image_fingerprint(img);
-  cvReleaseImage(&img);
-
-  return SIZET2NUM(phash);
-}
-
-void Init_similie() {
+void Init_fingerprint() {
   VALUE cSimilie = rb_define_class("Similie", rb_cObject);
-  rb_define_alloc_func(cSimilie, rb_image_alloc);
-  rb_define_method(cSimilie, "initialize",  RUBY_METHOD_FUNC(rb_image_initialize),  1);
-  rb_define_method(cSimilie, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint), 0);
-  rb_define_method(cSimilie, "distance",    RUBY_METHOD_FUNC(rb_image_distance),    1);
-  rb_define_alias(cSimilie, "%", "distance");
+  VALUE cFingerprint = rb_define_class("Fingerprint", cSimilie);
 
-  rb_define_singleton_method(cSimilie, "distance",    RUBY_METHOD_FUNC(rb_image_distance_func),    2);
-  rb_define_singleton_method(cSimilie, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func), 1);
-  rb_define_singleton_method(cSimilie, "popcount",    RUBY_METHOD_FUNC(rb_popcount_func),          1);
+  rb_define_singleton_method(cFingerprint, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func), 1);
+  rb_define_singleton_method(cFingerprint, "distance",    RUBY_METHOD_FUNC(rb_image_distance_func),    2);
+  rb_define_singleton_method(cFingerprint, "popcount",    RUBY_METHOD_FUNC(rb_popcount_func),          1);
 }

@@ -34,7 +34,7 @@ lib_1    = [cxcore,  'cvInitFont',    headers]
 lib_2    = [highgui, 'cvEncodeImage', headers]
 
 if have_header('opencv/cxcore.h') && have_library(*lib_1) && have_library(*lib_2)
-  create_makefile 'similie'
+  create_makefile 'fingerprint'
 else
   abort %q{
     Cannot find opencv headers or libraries.
