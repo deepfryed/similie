@@ -43,7 +43,16 @@ class Similie
   end
 
   def distance_with_rotations(path_a, path_b)
-    fingerprint_a = rotations(path_a)[0]
+    if @cache[path_a].is_a?(Array) || @cache[path_b].is_a?(Integer)
+      path_a, path_b = path_b, path_a
+    end
+
+    fingerprint_a = if @cache[path_a].is_a?(Integer)
+      fingerprint(path_a)
+    else
+      rotations(path_a)[0]
+    end
+
     rotations(path_b).map do |rotation_b|
       Fingerprint.distance(fingerprint_a, rotation_b)
     end.min
