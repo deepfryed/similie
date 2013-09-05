@@ -18,8 +18,19 @@ class Similie
     @cache[path] ||= Fingerprint.fingerprint(path)
   end
 
+  def rotations(path)
+    Fingerprint.rotations(path)
+  end
+
   def distance(path_a, path_b)
     Fingerprint.distance(fingerprint(path_a), fingerprint(path_b))
+  end
+
+  def distance_with_rotations(path_a, path_b)
+    fingerprint_a = rotations(path_a)[0]
+    rotations(path_b).map do |rotation_b|
+      Fingerprint.distance(fingerprint_a, rotation_b)
+    end.min
   end
 end
 

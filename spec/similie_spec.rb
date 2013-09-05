@@ -56,3 +56,16 @@ describe 'Similie caching' do
     end
   end
 end
+
+describe 'Similie image reoriented distance' do
+  it 'should work for identical but rotated images' do
+    similie = Similie.new
+
+    images = (0..7).map{ |n| DIR + 'rotation%d.png' % n }
+
+    images.permutation(2) do |a, b|
+      expect(similie.distance(a, b)).not_to eq(0)
+      expect(similie.distance_with_rotations(a, b)).to eq(0)
+    end
+  end
+end

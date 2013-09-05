@@ -1,0 +1,9 @@
+#!/bin/sh
+
+convert rotation0.png -flop       rotation1.png
+convert rotation0.png -rotate 180 rotation2.png
+convert rotation0.png -flip       rotation3.png
+convert rotation0.png -transpose  rotation4.png
+convert rotation0.png -rotate 270 rotation5.png
+convert rotation0.png -transverse rotation6.png
+convert rotation0.png -rotate 90  rotation7.png

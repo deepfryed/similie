@@ -109,6 +109,44 @@ uint64_t image_fingerprint(IplImage *img) {
   return phash;
 }
 
+void image_rotation_fingerprints(IplImage *img, uint64_t* phashs) {
+  IplImage *small = small_mono_image(img);
+  phashs[0] = small_mono_image_fingerprint(small);
+
+  IplImage *rotated = cvCreateImage(cvSize(small->width, small->height), small->depth, small->nChannels);
+  IplImage *swap;
+
+  cvFlip(small, rotated, 0); // horizontal
+  phashs[1] = small_mono_image_fingerprint(rotated);
+  swap = rotated; rotated = small; small = swap;
+
+  cvFlip(small, rotated, 1); // vertical
+  phashs[2] = small_mono_image_fingerprint(rotated);
+  swap = rotated; rotated = small; small = swap;
+
+  cvFlip(small, rotated, 0); // horizontal
+  phashs[3] = small_mono_image_fingerprint(rotated);
+  swap = rotated; rotated = small; small = swap;
+
+  cvTranspose(small, rotated); // transpose
+  phashs[4] = small_mono_image_fingerprint(rotated);
+  swap = rotated; rotated = small; small = swap;
+
+  cvFlip(small, rotated, 0); // horizontal
+  phashs[5] = small_mono_image_fingerprint(rotated);
+  swap = rotated; rotated = small; small = swap;
+
+  cvFlip(small, rotated, 1); // vertical
+  phashs[6] = small_mono_image_fingerprint(rotated);
+  swap = rotated; rotated = small; small = swap;
+
+  cvFlip(small, rotated, 0); // horizontal
+  phashs[7] = small_mono_image_fingerprint(rotated);
+
+  cvReleaseImage(&rotated);
+  cvReleaseImage(&small);
+}
+
 VALUE rb_image_fingerprint_func(VALUE self, VALUE file) {
   IplImage *img;
   img = cvLoadImage(CSTRING(file), -1);
@@ -119,6 +157,25 @@ VALUE rb_image_fingerprint_func(VALUE self, VALUE file) {
   cvReleaseImage(&img);
 
   return SIZET2NUM(phash);
+}
+
+VALUE rb_image_rotation_fingerprints_func(VALUE self, VALUE file) {
+  IplImage *img;
+  img = cvLoadImage(CSTRING(file), -1);
+  if (!img)
+    rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file));
+
+  uint64_t phashs[8];
+  image_rotation_fingerprints(img, phashs);
+  cvReleaseImage(&img);
+
+  VALUE rotations = rb_ary_new();
+
+  for (int i = 0; i < 8; i++) {
+    rb_ary_push(rotations, SIZET2NUM(phashs[i]));
+  }
+
+  return rotations;
 }
 
 VALUE rb_fingerprint_distance_func(VALUE self, VALUE fingerprint1, VALUE fingerprint2) {
@@ -137,6 +194,7 @@ void Init_fingerprint() {
   VALUE cSimilie = rb_define_class("Similie", rb_cObject);
   VALUE mFingerprint = rb_define_module_under(cSimilie, "Fingerprint");
 
-  rb_define_singleton_method(mFingerprint, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func),    1);
-  rb_define_singleton_method(mFingerprint, "distance",    RUBY_METHOD_FUNC(rb_fingerprint_distance_func), 2);
+  rb_define_singleton_method(mFingerprint, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func),            1);
+  rb_define_singleton_method(mFingerprint, "rotations",   RUBY_METHOD_FUNC(rb_image_rotation_fingerprints_func),  1);
+  rb_define_singleton_method(mFingerprint, "distance",    RUBY_METHOD_FUNC(rb_fingerprint_distance_func),         2);
 }
