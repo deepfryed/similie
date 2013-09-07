@@ -79,7 +79,7 @@ void small_mono_image(CImg<uint8_t> &img, CImg<float> &small) {
   } else {
     small = img.channel(0).get_convolve(meanfilter);
   }
-  small.resize(32, 32);
+  small.resize(32, 32, -100, -100, 2);
 }
 
 uint64_t small_mono_image_fingerprint(CImg<float> &small) {
