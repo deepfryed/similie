@@ -190,11 +190,13 @@ VALUE rb_fingerprint_distance_func(VALUE self, VALUE fingerprint1, VALUE fingerp
   return INT2NUM(dist);
 }
 
-void Init_fingerprint() {
-  VALUE cSimilie = rb_define_class("Similie", rb_cObject);
-  VALUE mFingerprint = rb_define_module_under(cSimilie, "Fingerprint");
+extern "C" {
+  void Init_fingerprint() {
+    VALUE cSimilie = rb_define_class("Similie", rb_cObject);
+    VALUE mFingerprint = rb_define_module_under(cSimilie, "Fingerprint");
 
-  rb_define_singleton_method(mFingerprint, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func),            1);
-  rb_define_singleton_method(mFingerprint, "rotations",   RUBY_METHOD_FUNC(rb_image_rotation_fingerprints_func),  1);
-  rb_define_singleton_method(mFingerprint, "distance",    RUBY_METHOD_FUNC(rb_fingerprint_distance_func),         2);
+    rb_define_singleton_method(mFingerprint, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func),            1);
+    rb_define_singleton_method(mFingerprint, "rotations",   RUBY_METHOD_FUNC(rb_image_rotation_fingerprints_func),  1);
+    rb_define_singleton_method(mFingerprint, "distance",    RUBY_METHOD_FUNC(rb_fingerprint_distance_func),         2);
+  }
 }
