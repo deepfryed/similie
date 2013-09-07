@@ -1,12 +1,40 @@
 /*
-    (c) Bharanee Rathna 2011
+  Original similie gem
+  (c) Bharanee Rathna 2011
 
-    CC BY-SA 3.0
-    http://creativecommons.org/licenses/by-sa/3.0/
+  CC BY-SA 3.0
+  http://creativecommons.org/licenses/by-sa/3.0/
 
-    Free for every type of use. The author cannot be legally held responsible for
-    any damages resulting from the use of this work. All modifications or derivatives
-    need to be attributed.
+  Free for every type of use. The author cannot be legally held responsible for
+  any damages resulting from the use of this work. All modifications or derivatives
+  need to be attributed.
+*/
+/*
+  Original pHash library (ph_dct_matrix and ph_dct_imagehash functions)
+
+  pHash, the open source perceptual hash library
+  Copyright (C) 2009 Aetilius, Inc.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+  Evan Klinger - eklinger@phash.org
+  D Grant Starkweather - dstarkweather@phash.org
+*/
+/*
+  Reworking, adaptation, fixes
+  (c) Ivan Kuchin 2013
 */
 
 #include <ruby.h>
