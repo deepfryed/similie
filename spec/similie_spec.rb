@@ -21,12 +21,12 @@ describe 'Similie fingerprinting' do
 
   it 'should fingerprint image' do
     fingerprint = Similie.new.fingerprint(DIR + 'lena1.png')
-    expect(fingerprint).to eq(36170087496991428)
+    expect(fingerprint).to eq(14562027531883238417)
   end
 
   it 'should fingerprint image rotations' do
     rotations = Similie.new.rotations(DIR + 'lena1.png')
-    expect(rotations[0]).to eq(36170087496991428)
+    expect(rotations[0]).to eq(14562027531883238417)
   end
 end
 
@@ -36,11 +36,11 @@ describe 'Similie image distance' do
     images = (1..5).map{ |n| DIR + 'lena%d.png' % n }
     images.unshift nil
 
-    expect(similie.distance(images[1], images[2])).to eq(2)
-    expect(similie.distance(images[2], images[3])).to eq(9)
-    expect(similie.distance(images[3], images[4])).to eq(8)
-    expect(similie.distance(images[1], images[4])).to eq(1)
-    expect(similie.distance(images[1], images[5])).to eq(12)
+    expect(similie.distance(images[1], images[2])).to eq(6)
+    expect(similie.distance(images[2], images[3])).to eq(22)
+    expect(similie.distance(images[3], images[4])).to eq(24)
+    expect(similie.distance(images[1], images[4])).to eq(6)
+    expect(similie.distance(images[1], images[5])).to eq(36)
   end
 end
 

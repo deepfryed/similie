@@ -17,9 +17,11 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <opencv/cv.h>
-#include <opencv/cxcore.h>
-#include <opencv/highgui.h>
+
+#define cimg_display 0
+#define cimg_verbosity 0
+#include "CImg.h"
+using namespace cimg_library;
 
 #define TO_S(v)    rb_funcall(v, rb_intern("to_s"), 0)
 #define CSTRING(v) RSTRING_PTR(TO_S(v))
@@ -55,115 +57,116 @@ int popcount(uint64_t x) {
 }
 #endif
 
-IplImage* small_mono_image(IplImage *img) {
-  IplImage *mono  = cvCreateImage(cvSize(img->width, img->height), img->depth, 1);
-  img->nChannels == 1 ? cvCopy(img, mono, 0) : cvCvtColor(img, mono, CV_RGB2GRAY);
-
-  IplImage *small = cvCreateImage(cvSize(DCT_SIZE, DCT_SIZE), img->depth, 1);
-  cvResize(mono, small, CV_INTER_CUBIC);
-  cvReleaseImage(&mono);
-
-  return small;
-}
-
-uint64_t small_mono_image_fingerprint(IplImage *small) {
-  int x, y;
-  double avg = 0;
-  uint64_t phash = 0, phash_mask = 1;
-
-  CvMat *dct = cvCreateMat(DCT_SIZE, DCT_SIZE, CV_64FC1);
-  cvConvertScale(small, dct, 1, 0);
-
-  cvTranspose(dct, dct);
-  cvDCT(dct, dct, CV_DXT_ROWS);
-  cvSet2D(dct, 0, 0, cvScalarAll(0));
-
-  CvMat roi;
-  cvGetSubRect(dct, &roi, cvRect(0, 0, 8, 8));
-  avg = cvAvg(&roi, 0).val[0] * 64.0 / 63.0;
-
-  for (x = 7; x >= 0; x--) {
-    for (y = 7; y >= 0; y--) {
-      if (cvGet2D(dct, x, y).val[0] > avg)
-        phash |= phash_mask;
-      phash_mask = phash_mask << 1;
+CImg<float>* ph_dct_matrix(const int N) {
+  CImg<float> *ptr_matrix = new CImg<float>(N, N, 1, 1, 1 / sqrt((float) N));
+  const float c1 = sqrt(2.0 / N);
+  for (int x = 0; x < N; x++){
+    for (int y = 1; y < N; y++){
+      *ptr_matrix->data(x, y) = c1 * cos((cimg::PI / 2 / N) * y * (2 * x + 1));
     }
   }
-
-  cvReleaseMat(&dct);
-
-  return phash;
+  return ptr_matrix;
 }
 
-uint64_t image_fingerprint(IplImage *img) {
-  uint64_t phash;
-
-  IplImage *small = small_mono_image(img);
-  phash = small_mono_image_fingerprint(small);
-  cvReleaseImage(&small);
-
-  return phash;
+void small_mono_image(CImg<uint8_t> &img, CImg<float> &small) {
+  CImg<float> meanfilter(7, 7, 1, 1, 1);
+  if (img.spectrum() == 3){
+    small = img.RGBtoYCbCr().channel(0).get_convolve(meanfilter);
+  } else if (img.spectrum() == 4){
+    int width = img.width();
+    int height = img.height();
+    small = img.crop(0, 0, 0, 0, width - 1, height - 1, 0, 2).RGBtoYCbCr().channel(0).get_convolve(meanfilter);
+  } else {
+    small = img.channel(0).get_convolve(meanfilter);
+  }
+  small.resize(32, 32);
 }
 
-void image_rotation_fingerprints(IplImage *img, uint64_t* phashs) {
-  IplImage *small = small_mono_image(img);
+uint64_t small_mono_image_fingerprint(CImg<float> &small) {
+  uint64_t hash;
+
+  CImg<float> *C  = ph_dct_matrix(32);
+  CImg<float> Ctransp = C->get_transpose();
+  CImg<float> dctImage = (*C) * small * Ctransp;
+  CImg<float> subsec = dctImage.crop(1, 1, 8, 8).unroll('x');
+
+  float median = subsec.median();
+  uint64_t one = 0x0000000000000001;
+  hash = 0x0000000000000000;
+  for (int i = 0; i < 64; i++){
+    float current = subsec(i);
+    if (current > median)
+      hash |= one;
+    one = one << 1;
+  }
+
+  delete C;
+
+  return hash;
+}
+
+uint64_t image_fingerprint(CImg<uint8_t> &image) {
+  CImg<float> small;
+
+  small_mono_image(image, small);
+
+  return small_mono_image_fingerprint(small);
+}
+
+void image_rotation_fingerprints(CImg<uint8_t> &image, uint64_t* phashs) {
+  static int a = 0;
+
+  CImg<float> small;
+
+  small_mono_image(image, small);
+
   phashs[0] = small_mono_image_fingerprint(small);
 
-  IplImage *rotated = cvCreateImage(cvSize(small->width, small->height), small->depth, small->nChannels);
-  IplImage *swap;
+  small.mirror('x');
+  phashs[1] = small_mono_image_fingerprint(small);
 
-  cvFlip(small, rotated, 0); // horizontal
-  phashs[1] = small_mono_image_fingerprint(rotated);
-  swap = rotated; rotated = small; small = swap;
+  small.mirror('y');
+  phashs[2] = small_mono_image_fingerprint(small);
 
-  cvFlip(small, rotated, 1); // vertical
-  phashs[2] = small_mono_image_fingerprint(rotated);
-  swap = rotated; rotated = small; small = swap;
+  small.mirror('x');
+  phashs[3] = small_mono_image_fingerprint(small);
 
-  cvFlip(small, rotated, 0); // horizontal
-  phashs[3] = small_mono_image_fingerprint(rotated);
-  swap = rotated; rotated = small; small = swap;
+  small.transpose();
+  phashs[4] = small_mono_image_fingerprint(small);
 
-  cvTranspose(small, rotated); // transpose
-  phashs[4] = small_mono_image_fingerprint(rotated);
-  swap = rotated; rotated = small; small = swap;
+  small.mirror('x');
+  phashs[5] = small_mono_image_fingerprint(small);
 
-  cvFlip(small, rotated, 0); // horizontal
-  phashs[5] = small_mono_image_fingerprint(rotated);
-  swap = rotated; rotated = small; small = swap;
+  small.mirror('y');
+  phashs[6] = small_mono_image_fingerprint(small);
 
-  cvFlip(small, rotated, 1); // vertical
-  phashs[6] = small_mono_image_fingerprint(rotated);
-  swap = rotated; rotated = small; small = swap;
-
-  cvFlip(small, rotated, 0); // horizontal
-  phashs[7] = small_mono_image_fingerprint(rotated);
-
-  cvReleaseImage(&rotated);
-  cvReleaseImage(&small);
+  small.mirror('x');
+  phashs[7] = small_mono_image_fingerprint(small);
 }
 
 VALUE rb_image_fingerprint_func(VALUE self, VALUE file) {
-  IplImage *img;
-  img = cvLoadImage(CSTRING(file), -1);
-  if (!img)
+  CImg<uint8_t> img;
+  try {
+    img.load(CSTRING(file));
+  } catch (CImgIOException ex){
     rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file));
+  }
 
   uint64_t phash = image_fingerprint(img);
-  cvReleaseImage(&img);
 
   return SIZET2NUM(phash);
 }
 
 VALUE rb_image_rotation_fingerprints_func(VALUE self, VALUE file) {
-  IplImage *img;
-  img = cvLoadImage(CSTRING(file), -1);
-  if (!img)
+  CImg<uint8_t> img;
+  try {
+    img.load(CSTRING(file));
+  } catch (CImgIOException ex){
     rb_raise(rb_eArgError, "Invalid image or unsupported format: %s", CSTRING(file));
+  }
 
-  uint64_t phashs[8];
+  uint64_t phashs[8] = {};
   image_rotation_fingerprints(img, phashs);
-  cvReleaseImage(&img);
 
   VALUE rotations = rb_ary_new();
 
