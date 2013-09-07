@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name              = "similie"
   s.version           = "0.3.2"
-  s.authors           = "Bharanee Rathna"
+  s.authors           = ["Bharanee Rathna", "Ivan Kuchin"]
   s.email             = "deepfryed@gmail.com"
   s.summary           = "compute image fingerprints and similarity"
   s.description       = "similie is an image fingerprinting & comparison utility"
