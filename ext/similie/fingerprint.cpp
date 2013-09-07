@@ -79,13 +79,13 @@ void small_mono_image(CImg<uint8_t> &img, CImg<float> &small) {
   } else {
     small = img.channel(0).get_convolve(meanfilter);
   }
-  small.resize(32, 32, -100, -100, 2);
+  small.resize(DCT_SIZE, DCT_SIZE, -100, -100, 2);
 }
 
 uint64_t small_mono_image_fingerprint(CImg<float> &small) {
   uint64_t hash;
 
-  CImg<float> *C  = ph_dct_matrix(32);
+  CImg<float> *C  = ph_dct_matrix(DCT_SIZE);
   CImg<float> Ctransp = C->get_transpose();
   CImg<float> dctImage = (*C) * small * Ctransp;
   CImg<float> subsec = dctImage.crop(1, 1, 8, 8).unroll('x');
