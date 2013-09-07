@@ -9,4 +9,4 @@ if have_header 'jpeglib.h'
 end
 
 create_header
-create_makefile 'fingerprint'
+create_makefile 'similie/fingerprint'
