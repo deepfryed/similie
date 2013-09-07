@@ -41,12 +41,8 @@ If using persistant cache take into account file size and mtime or even cryptogr
 ## Dependencies
 
 * ruby 1.9.1+
-* opencv 2.1+  (libcv-dev and libhighgui-dev on debian systems)
-
-# See Also
-
-[pHash - The open source perceptual hash library](http://www.phash.org/)
+* CImg
 
 # License
 
-MIT
+GPL — using code from pHash library
