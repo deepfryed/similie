@@ -42,6 +42,9 @@ If using persistant cache take into account file size and mtime or even cryptogr
 
 * ruby 1.9.1+
 * CImg
+* libpng [not required]
+* libjpeg [not required]
+* ImageMagick [not required]
 
 # License
 
