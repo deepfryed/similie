@@ -18,8 +18,18 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "extconf.h"
 #define cimg_display 0
 #define cimg_verbosity 0
+
+#ifdef HAVE_PNG_H
+#define cimg_use_png
+#endif
+
+#ifdef HAVE_JPEGLIB_H
+#define cimg_use_jpeg
+#endif
+
 #include "CImg.h"
 using namespace cimg_library;
 
