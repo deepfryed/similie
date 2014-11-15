@@ -1,6 +1,8 @@
-# Similie
+# Phamilie
 
-Similie is a simple DCT based image hashing interface that,
+Originally forked from [deepfryed/similie](https://github.com/deepfryed/similie).
+
+Phamilie is a simple DCT based image hashing interface that,
 
 * computes a fingerprint based on low frequencies of an image.
 * computes hamming distance between 2 fingerprints.
@@ -8,34 +10,44 @@ Similie is a simple DCT based image hashing interface that,
 ## Example
 
 ```ruby
-  require 'similie'
+require 'phamilie'
 
-  img1 = Similie.new("test/lena1.png")
-  img2 = Similie.new("test/lena2.png") # lena1.png cropped and scaled
-  img3 = Similie.new("test/lena5.png") # a different image
+phamilie = Phamilie.new
 
-  img1.fingerprint #=> 64bit int
+lena1 = 'spec/lena1.png'
+lena2 = 'spec/lena2.png' # lena1.png cropped and scaled
+lena5 = 'spec/lena5.png' # a different image
+lena6 = 'spec/lena6.png' # lena2.png rotated and scaled
 
-  img1.distance(img2) #=> 2
-  img1.distance(img3) #=> 12
+phamilie.fingerprint(lena1) #=> 36170087496991428
 
-  # class methods, if you want to deallocate image buffers immediately.
-  Similie.distance("test/lena1.png", "test/lena5.png") #=> 12
-  Similie.fingerprint("test/lena1.png")
+phamilie.distance(lena1, lena2) #=> 2
+phamilie.distance(lena1, lena5) #=> 12
 
-  # utility method that exposes hamming distance http://en.wikipedia.org/wiki/Hamming_weight
-  Similie.popcount(0x03 ^ 0x08) #=> 3
+phamilie.distance(lena1, lena6) #=> 19
+phamilie.distance(lena2, lena6) #=> 19
+phamilie.distance(lena5, lena6) #=> 23
+phamilie.distance_with_rotations(lena1, lena6) #=> 2
+phamilie.distance_with_rotations(lena2, lena6) #=> 0
+phamilie.distance_with_rotations(lena5, lena6) #=> 12
 ```
+
+## Caching
+
+By default a Hash is used to cache fingerprints by path. Be carefull if images or current directory can change in process.
+
+As cache you can use an instance of class responding to `[]` and `[]=`.
+
+If using persistant cache take into account file size and mtime or even cryptographic hash of contents.
 
 ## Dependencies
 
 * ruby 1.9.1+
-* opencv 2.1+  (libcv-dev and libhighgui-dev on debian systems)
-
-# See Also
-
-[pHash - The open source perceptual hash library](http://www.phash.org/)
+* CImg
+* libpng if you need to read png images
+* libjpeg if you need to read jpeg images
+* ImageMagick if you need to read other images
 
 # License
 
-MIT
+GPL — using code from pHash library

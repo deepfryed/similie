@@ -1,0 +1,6 @@
+language: ruby
+rvm: 1.9.3
+script: bundle exec rspec
+before_install:
+matrix:
+  fast_finish: true
