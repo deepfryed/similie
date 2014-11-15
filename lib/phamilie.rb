@@ -1,4 +1,4 @@
-class Similie
+class Phamilie
   def initialize(cache = {})
     {:[] => 1, :[]= => 2}.each do |method, desired_arity|
       unless cache.respond_to?(method)
@@ -59,4 +59,4 @@ class Similie
   end
 end
 
-require 'similie/fingerprint.so'
+require 'phamilie/fingerprint.so'

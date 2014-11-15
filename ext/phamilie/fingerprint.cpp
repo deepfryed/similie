@@ -229,8 +229,8 @@ VALUE rb_fingerprint_distance_func(VALUE self, VALUE fingerprint1, VALUE fingerp
 
 extern "C" {
   void Init_fingerprint() {
-    VALUE cSimilie = rb_define_class("Similie", rb_cObject);
-    VALUE mFingerprint = rb_define_module_under(cSimilie, "Fingerprint");
+    VALUE cPhamilie = rb_define_class("Phamilie", rb_cObject);
+    VALUE mFingerprint = rb_define_module_under(cPhamilie, "Fingerprint");
 
     rb_define_singleton_method(mFingerprint, "fingerprint", RUBY_METHOD_FUNC(rb_image_fingerprint_func),            1);
     rb_define_singleton_method(mFingerprint, "rotations",   RUBY_METHOD_FUNC(rb_image_rotation_fingerprints_func),  1);

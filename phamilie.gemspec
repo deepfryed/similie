@@ -1,11 +1,11 @@
 Gem::Specification.new do |s|
-  s.name              = "similie"
+  s.name              = "phamilie"
   s.version           = "0.4.0"
   s.authors           = ["Bharanee Rathna", "Ivan Kuchin"]
   s.email             = "deepfryed@gmail.com"
   s.summary           = "compute image fingerprints and similarity"
-  s.description       = "similie is an image fingerprinting & comparison utility"
-  s.homepage          = "http://github.com/deepfryed/similie"
+  s.description       = "phamilie is an image fingerprinting & comparison utility"
+  s.homepage          = "http://github.com/toy/phamilie"
   s.license           = "GPL"
   s.files             = `git ls-files`.split("\n")
   s.test_files        = `git ls-files -- {test,spec,features}/*`.split("\n")
