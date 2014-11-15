@@ -1,8 +1,7 @@
 Gem::Specification.new do |s|
   s.name              = "phamilie"
-  s.version           = "0.4.0"
+  s.version           = "0.1.0"
   s.authors           = ["Bharanee Rathna", "Ivan Kuchin"]
-  s.email             = "deepfryed@gmail.com"
   s.summary           = "compute image fingerprints and similarity"
   s.description       = "phamilie is an image fingerprinting & comparison utility"
   s.homepage          = "http://github.com/toy/phamilie"
