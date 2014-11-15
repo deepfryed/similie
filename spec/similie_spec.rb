@@ -53,7 +53,7 @@ describe 'Similie caching' do
     images = (1..5).map{ |n| DIR + 'lena%d.png' % n }
 
     images.each do |image|
-      Similie::Fingerprint.should_receive(:fingerprint).once.with(image).and_return(image.__id__)
+      expect(Similie::Fingerprint).to receive(:fingerprint).once.with(image).and_return(image.__id__)
     end
 
     images.permutation(2) do |a, b|
@@ -81,8 +81,8 @@ describe 'Similie caching with rotations' do
 
     images = (1..5).map{ |n| DIR + 'lena%d.png' % n }
 
-    Similie::Fingerprint.should_receive(:fingerprint).exactly(images.length).times.and_return(0)
-    Similie::Fingerprint.should_receive(:rotations).exactly(images.length - 1).times.and_return(8.times.to_a)
+    expect(Similie::Fingerprint).to receive(:fingerprint).exactly(images.length).times.and_return(0)
+    expect(Similie::Fingerprint).to receive(:rotations).exactly(images.length - 1).times.and_return(8.times.to_a)
 
     images.permutation(2) do |a, b|
       similie.distance(a, b)
@@ -102,11 +102,11 @@ describe 'Similie caching with rotations' do
 
     images = (1..2).map{ |n| DIR + 'lena%d.png' % n }
 
-    Similie::Fingerprint.should_receive(:fingerprint).once.with(images[0]).and_return(0)
-    Similie::Fingerprint.should_receive(:rotations).once.with(images[0]).and_return(8.times.to_a)
+    expect(Similie::Fingerprint).to receive(:fingerprint).once.with(images[0]).and_return(0)
+    expect(Similie::Fingerprint).to receive(:rotations).once.with(images[0]).and_return(8.times.to_a)
 
-    Similie::Fingerprint.should_receive(:fingerprint).once.with(images[1]).and_return(0)
-    Similie::Fingerprint.should_not_receive(:rotations).with(images[1])
+    expect(Similie::Fingerprint).to receive(:fingerprint).once.with(images[1]).and_return(0)
+    expect(Similie::Fingerprint).not_to receive(:rotations).with(images[1])
 
     similie.distance(images[0], images[1])
     similie.distance(images[1], images[0])
@@ -119,11 +119,11 @@ describe 'Similie caching with rotations' do
 
     images = (1..2).map{ |n| DIR + 'lena%d.png' % n }
 
-    Similie::Fingerprint.should_not_receive(:fingerprint).with(images[0])
-    Similie::Fingerprint.should_receive(:rotations).once.with(images[0]).and_return(8.times.to_a)
+    expect(Similie::Fingerprint).not_to receive(:fingerprint).with(images[0])
+    expect(Similie::Fingerprint).to receive(:rotations).once.with(images[0]).and_return(8.times.to_a)
 
-    Similie::Fingerprint.should_not_receive(:fingerprint).with(images[0])
-    Similie::Fingerprint.should_receive(:rotations).with(images[1]).and_return(8.times.to_a)
+    expect(Similie::Fingerprint).not_to receive(:fingerprint).with(images[0])
+    expect(Similie::Fingerprint).to receive(:rotations).with(images[1]).and_return(8.times.to_a)
 
     similie.distance_with_rotations(images[0], images[1])
     similie.distance_with_rotations(images[1], images[0])
