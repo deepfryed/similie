@@ -8,26 +8,26 @@ Similie is a simple DCT based image hashing interface that,
 ## Example
 
 ```ruby
-  require 'similie'
+require 'similie'
 
-  similie = Similie.new
+similie = Similie.new
 
-  lena1 = "spec/lena1.png"
-  lena2 = "spec/lena2.png" # lena1.png cropped and scaled
-  lena5 = "spec/lena5.png" # a different image
-  lena6 = "spec/lena6.png" # lena2.png rotated and scaled
+lena1 = 'spec/lena1.png'
+lena2 = 'spec/lena2.png' # lena1.png cropped and scaled
+lena5 = 'spec/lena5.png' # a different image
+lena6 = 'spec/lena6.png' # lena2.png rotated and scaled
 
-  similie.fingerprint(lena1) #=> 36170087496991428
+similie.fingerprint(lena1) #=> 36170087496991428
 
-  similie.distance(lena1, lena2) #=> 2
-  similie.distance(lena1, lena5) #=> 12
+similie.distance(lena1, lena2) #=> 2
+similie.distance(lena1, lena5) #=> 12
 
-  similie.distance(lena1, lena6) #=> 19
-  similie.distance(lena2, lena6) #=> 19
-  similie.distance(lena5, lena6) #=> 23
-  similie.distance_with_rotations(lena1, lena6) #=> 2
-  similie.distance_with_rotations(lena2, lena6) #=> 0
-  similie.distance_with_rotations(lena5, lena6) #=> 12
+similie.distance(lena1, lena6) #=> 19
+similie.distance(lena2, lena6) #=> 19
+similie.distance(lena5, lena6) #=> 23
+similie.distance_with_rotations(lena1, lena6) #=> 2
+similie.distance_with_rotations(lena2, lena6) #=> 0
+similie.distance_with_rotations(lena5, lena6) #=> 12
 ```
 
 ## Caching
@@ -42,9 +42,9 @@ If using persistant cache take into account file size and mtime or even cryptogr
 
 * ruby 1.9.1+
 * CImg
-* libpng [not required]
-* libjpeg [not required]
-* ImageMagick [not required]
+* libpng if you need to read png images
+* libjpeg if you need to read jpeg images
+* ImageMagick if you need to read other images
 
 # License
 
